@@ -19,6 +19,11 @@ public class CrptApi {
     private long intervalMillis;
     private final String Url = "http://example.com/api/endpoint";
 
+    /**
+     * Creates a new CrptApi object with the specified request limit and time unit.
+     * @param timeUnit The time unit for the request limit
+     * @param requestLimit The maximum number of requests per time unit
+     */
     public CrptApi(TimeUnit timeUnit, int requestLimit) {
         this.requestLimit = requestLimit;
         this.intervalMillis = timeUnit.toMillis(1);
@@ -26,6 +31,10 @@ public class CrptApi {
         this.lastRequestTime = System.currentTimeMillis();
     }
 
+    /**
+     * Makes a request to the API endpoint with rate limiting.
+            * @throws InterruptedException If the thread is interrupted while waiting for the request to complete
+     */
     public synchronized void makeApiRequest() throws InterruptedException {
         long currentTime = System.currentTimeMillis();
         if (requestCount < requestLimit) {
@@ -41,6 +50,13 @@ public class CrptApi {
         lastRequestTime = currentTime;
     }
 
+    /**
+     * Sends a request to the API endpoint with the given document and signature.
+     * @param document The document to be sent
+     * @param signature The signature of the document
+     * @throws InterruptedException If the thread is interrupted while waiting for the request to complete
+     * @throws IOException If an error occurs during the request
+     */
     public void createDocument(Object document, String signature) throws InterruptedException, IOException {
         makeApiRequest();
         ObjectMapper objectMapper = new ObjectMapper();
@@ -54,6 +70,13 @@ public class CrptApi {
         }
     }
 
+    /**
+     * Sends a POST request to the API endpoint with the given JSON payload.
+     * @param document The document in json format
+     * @param signature The signature in json format
+     * @throws InterruptedException If the thread is interrupted while waiting for the request to complete
+     * @throws IOException If an error occurs during the request
+     */
     private void sendDocument(String document, String signature) throws InterruptedException, IOException {
         try  {
             URL url = new URL(Url);
@@ -63,7 +86,9 @@ public class CrptApi {
             connection.setDoOutput(true);
 
             connection.setRequestProperty("Content-Type", "application/json");
+            // Generate the JSON payload
             String jsonPayload = String.format("{\"document\": %s, \"signature\": %s}", document, signature);
+            // Send the JSON payload to the API endpoint
             System.out.println(jsonPayload);
             connection.getOutputStream().write(jsonPayload.getBytes(StandardCharsets.UTF_8));
 
@@ -105,6 +130,12 @@ public class CrptApi {
         new CrptApi(TimeUnit.MINUTES,10).createDocument(document,"Bulat");
 
     }
+
+    /**
+     * An internal class used to represent an electronic document.
+     *
+     * Contains information about the electronic document, such as its ID, status, type and content.
+     */
     @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY)
     static class Document {
         private Product.Description description;
@@ -139,8 +170,13 @@ public class CrptApi {
         }
 
     }
-    @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY)
 
+    /**
+     * An internal class used to represent a product that can be included in an electronic document.
+     *
+     * This class contains information about the product, such as its certificate, date of release, registration number, etc.
+     */
+    @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY)
     public static class Product {
         private String certificateDocument;
         private String certificateDocumentDate;
@@ -163,8 +199,13 @@ public class CrptApi {
             this.uitCode = uitCode;
             this.uituCode = uituCode;
         }
-        @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY)
 
+        /**
+         * An internal class used to represent a description of a participant in an electronic document.
+         *
+         * This class contains the participant's tax registration number.
+         */
+        @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY)
         static class Description {
             private String participantInn;
 
