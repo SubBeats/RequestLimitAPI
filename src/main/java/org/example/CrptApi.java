@@ -127,7 +127,10 @@ public class CrptApi {
                 regNumber
         );
 
-        new CrptApi(TimeUnit.MINUTES,10).createDocument(document,"Bulat");
+       CrptApi crptApi =  new CrptApi(TimeUnit.SECONDS,3);
+       for (int i =0 ; i<100 ;i++){
+           crptApi.createDocument(document,"Bulat");
+       }
 
     }
 
