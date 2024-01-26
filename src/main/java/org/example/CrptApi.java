@@ -31,9 +31,9 @@ public class CrptApi {
             requestCount++;
         }
         else {
-            var var = currentTime - lastRequestTime;
-            if(var < intervalMillis) {
-                Thread.sleep(intervalMillis-var);
+            var timeElapsed = currentTime - lastRequestTime;
+            if(timeElapsed < intervalMillis) {
+                Thread.sleep(intervalMillis-timeElapsed);
             }
             requestCount = 0;
         }
@@ -50,7 +50,7 @@ public class CrptApi {
             String signatureJson = ow.writeValueAsString(signature);
             sendDocument(documentJson, signatureJson);
         } catch (JsonProcessingException e) {
-            throw new RuntimeException(e);
+            throw new RuntimeException("Failed to process JSON", e);
         }
     }
 
@@ -68,13 +68,11 @@ public class CrptApi {
             //создание JSON-посылки
             String jsonPayload = String.format("{\"document\": %s, \"signature\": %s}", document, signature);
 
-            System.out.println(jsonPayload);
-
             //Отправка POST-запроса
             connection.getOutputStream().write(jsonPayload.getBytes(StandardCharsets.UTF_8));
 
         } catch (MalformedURLException e) {
-            throw new RuntimeException(e);
+            throw new RuntimeException("Malformed URL", e);
         }
     }
 
